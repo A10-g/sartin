@@ -1,0 +1,1895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sartin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C62828;      /* Primary Red (pinch of red) */
+    --gold-light: #E53935;/* Light red hover state */
+    --gold-pale: #FFEBEE; /* Soft pale pink/red for light highlights */
+    --black: #FFFFFF;     /* Light theme background */
+    --black-soft: #FAFAFA;/* Soft background */
+    --black-mid: #F5F5F5; /* Mid background */
+    --gray: #EEEEEE;      /* Light border/gray */
+    --text-muted: #666666;/* Elegant neutral gray for body text */
+    --white: #1A1A1A;     /* Primary text color: dark charcoal/black */
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom Cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    transition: transform 0.35s ease, width 0.3s, height 0.3s;
+    transform: translate(-50%, -50%);
+    opacity: 0.5;
+  }
+  body:hover .cursor { opacity: 1; }
+  a:hover ~ .cursor, button:hover ~ .cursor { transform: translate(-50%,-50%) scale(2); }
+
+  /* Announcement Bar */
+  .announcement {
+    background: var(--gold);
+    color: var(--black);
+    text-align: center;
+    padding: 9px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+
+  /* Nav */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(183,28,28,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 5vw;
+    height: 70px;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  .logo-img {
+    height: 36px;
+    width: auto;
+    display: block;
+    object-fit: contain;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 400;
+    opacity: 0.8;
+    transition: opacity 0.2s, color 0.2s;
+    position: relative;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1px;
+    background: var(--gold);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover { opacity: 1; color: var(--gold-light); }
+  .nav-links a:hover::after { width: 100%; }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+  }
+  .nav-actions a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    opacity: 0.7;
+    transition: opacity 0.2s, color 0.2s;
+  }
+  .nav-actions a:hover { opacity: 1; color: var(--gold); }
+
+  .cart-btn {
+    background: var(--gold);
+    color: var(--black) !important;
+    opacity: 1 !important;
+    padding: 9px 20px;
+    font-weight: 600 !important;
+    font-size: 10px !important;
+    letter-spacing: 2px !important;
+  }
+
+  /* Hero */
+  .hero {
+    position: relative;
+    height: 94vh;
+    min-height: 580px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+    background: var(--black);
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 70% at 70% 40%, rgba(201,168,76,0.09) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 50% at 20% 80%, rgba(201,168,76,0.05) 0%, transparent 50%);
+  }
+
+  /* Decorative diagonal line */
+  .hero-line {
+    position: absolute;
+    top: 0; right: 28%;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(201,168,76,0.3) 30%, rgba(201,168,76,0.15) 70%, transparent);
+    transform: rotate(12deg) translateX(40px);
+  }
+
+  .hero-shoe-area {
+    position: absolute;
+    right: 0; top: 0;
+    width: 52%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* SVG Shoe Illustration */
+  .shoe-visual {
+    width: 88%;
+    max-width: 520px;
+    animation: floatShoe 4s ease-in-out infinite;
+    filter: drop-shadow(0 40px 60px rgba(201,168,76,0.25));
+  }
+
+  @keyframes floatShoe {
+    0%, 100% { transform: translateY(0px) rotate(-2deg); }
+    50% { transform: translateY(-18px) rotate(-2deg); }
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 5vw 7vh;
+    max-width: 52%;
+    animation: fadeUp 1.1s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-eyebrow {
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: fadeUp 1.1s 0.1s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px; height: 1px;
+    background: var(--gold);
+  }
+
+  .hero-headline {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(52px, 6.5vw, 88px);
+    font-weight: 300;
+    line-height: 1.0;
+    letter-spacing: 1px;
+    margin-bottom: 26px;
+    animation: fadeUp 1.1s 0.2s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  .hero-headline em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .hero-sub {
+    font-size: 13px;
+    letter-spacing: 1px;
+    line-height: 1.8;
+    color: var(--text-muted);
+    max-width: 360px;
+    margin-bottom: 42px;
+    animation: fadeUp 1.1s 0.3s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .hero-ctas {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    animation: fadeUp 1.1s 0.4s cubic-bezier(0.16,1,0.3,1) both;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--black);
+    padding: 16px 40px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    transition: background 0.3s, transform 0.2s;
+    display: inline-block;
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-ghost {
+    color: var(--white);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.7;
+    transition: opacity 0.2s, gap 0.2s;
+  }
+  .btn-ghost:hover { opacity: 1; gap: 16px; }
+  .btn-ghost::after { content: '→'; color: var(--gold); }
+
+  .hero-stats {
+    position: absolute;
+    bottom: 7vh;
+    right: 5vw;
+    display: flex;
+    gap: 40px;
+    z-index: 2;
+    animation: fadeUp 1.1s 0.5s cubic-bezier(0.16,1,0.3,1) both;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px;
+    font-weight: 300;
+    color: var(--gold-light);
+    display: block;
+  }
+  .stat-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* Section Titles */
+  .section-header {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .section-eyebrow {
+    font-size: 9px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .section-eyebrow::before, .section-eyebrow::after {
+    content: '';
+    display: block;
+    width: 40px; height: 1px;
+    background: rgba(201,168,76,0.4);
+  }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(36px, 4vw, 56px);
+    font-weight: 300;
+    letter-spacing: 2px;
+  }
+  .section-title em { font-style: italic; color: var(--gold-light); }
+
+  /* Categories */
+  .categories {
+    padding: 90px 5vw;
+    background: var(--black-soft);
+  }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 280px 280px;
+    gap: 14px;
+  }
+
+  .cat-card {
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    background: var(--black-mid);
+  }
+  .cat-card:first-child { grid-row: span 2; }
+
+  .cat-bg-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 0;
+  }
+  .cat-card:hover .cat-bg-img {
+    transform: scale(1.06);
+  }
+
+  /* Shoe SVG in categories */
+  .cat-shoe {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 65%;
+    opacity: 0.6;
+    transition: opacity 0.4s, transform 0.6s;
+    transform: translateX(10px) rotate(-5deg);
+  }
+  .cat-card:hover .cat-shoe {
+    opacity: 0.9;
+    transform: translateX(0px) rotate(-3deg);
+  }
+  .cat-card:first-child .cat-shoe { width: 70%; }
+
+  .cat-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(255,255,255,0.85) 0%, transparent 60%);
+    z-index: 1;
+  }
+
+  .cat-info {
+    position: absolute;
+    bottom: 0; left: 0;
+    padding: 28px;
+    z-index: 2;
+  }
+
+  .cat-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(22px, 2.5vw, 32px);
+    font-weight: 300;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .cat-count {
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .cat-link {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    text-decoration: none;
+  }
+
+  .cat-tag {
+    position: absolute;
+    top: 20px; left: 20px;
+    background: var(--gold);
+    color: var(--black);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    z-index: 2;
+  }
+
+  /* Featured Products */
+  .products {
+    padding: 90px 5vw;
+    background: var(--black);
+  }
+
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 50px;
+  }
+
+  .product-card {
+    background: var(--black-mid);
+    overflow: hidden;
+    position: relative;
+    cursor: none;
+    transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  }
+  .product-card:hover { transform: translateY(-6px); }
+
+  .product-img {
+    aspect-ratio: 3/4;
+    position: relative;
+    overflow: hidden;
+    background: var(--gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .product-card:hover .product-img img {
+    transform: scale(1.08);
+  }
+
+  /* Product shoe visuals */
+  .product-shoe-wrap {
+    width: 80%;
+    height: 80%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+  }
+  .product-card:hover .product-shoe-wrap { transform: scale(1.08) translateY(-8px); }
+
+  .product-badge {
+    position: absolute;
+    top: 14px; left: 14px;
+    background: var(--gold);
+    color: var(--black);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    z-index: 2;
+  }
+  .product-badge.new { background: var(--black); color: var(--gold); border: 1px solid var(--gold); }
+
+  .quick-view {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.92);
+    color: var(--gold);
+    text-align: center;
+    padding: 14px;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+    cursor: none;
+    border: none;
+    width: 100%;
+    z-index: 2;
+  }
+  .product-card:hover .quick-view { transform: translateY(0); }
+
+  .product-info {
+    padding: 18px 18px 20px;
+  }
+
+  .product-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    color: var(--white);
+  }
+
+  .product-type {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .product-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .wa-chat-link {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #25D366;
+    text-decoration: none;
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  .wa-chat-link:hover {
+    opacity: 0.8;
+  }
+
+  .color-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    cursor: none;
+  }
+
+  .view-all-wrap {
+    text-align: center;
+  }
+
+  /* Occasions Banner */
+  .occasions {
+    padding: 90px 5vw;
+    background: var(--black-soft);
+  }
+
+  .occasion-strip {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3px;
+    margin-top: 0;
+  }
+
+  .occasion-card {
+    position: relative;
+    height: 340px;
+    overflow: hidden;
+    cursor: none;
+    display: flex;
+    align-items: flex-end;
+    background: var(--black-mid);
+  }
+
+  .occ-bg {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .occasion-card:hover .occ-bg { transform: scale(1.05); }
+
+  .occ-bg-1 {
+    background: radial-gradient(ellipse 100% 80% at 50% 100%, rgba(183,28,28,0.18) 0%, transparent 60%),
+    linear-gradient(to top, #ffffff, #f0f0f0);
+  }
+  .occ-bg-2 {
+    background: radial-gradient(ellipse 100% 80% at 50% 100%, rgba(183,28,28,0.1) 0%, transparent 60%),
+    linear-gradient(to top, #ffffff, #f5f5f5);
+  }
+  .occ-bg-3 {
+    background: radial-gradient(ellipse 100% 80% at 50% 100%, rgba(183,28,28,0.22) 0%, transparent 60%),
+    linear-gradient(to top, #ffffff, #eaeaea);
+  }
+
+  .occ-shoe {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 75%;
+    opacity: 0.7;
+    transition: opacity 0.4s, transform 0.6s;
+  }
+  .occasion-card:hover .occ-shoe { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+
+  .occ-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(255,255,255,0.75) 0%, transparent 55%);
+    z-index: 1;
+  }
+
+  .occ-info {
+    position: relative;
+    z-index: 2;
+    padding: 28px 24px;
+    width: 100%;
+  }
+
+  .occ-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+    display: block;
+  }
+  .occ-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+  .occ-link {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0.7;
+    transition: opacity 0.2s, gap 0.2s;
+  }
+  .occ-link:hover { opacity: 1; gap: 16px; }
+  .occ-link::after { content: '→'; color: var(--gold); }
+
+  /* Brand Story */
+  .brand-story {
+    padding: 100px 5vw;
+    background: var(--black);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .story-content {}
+
+  .story-quote {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 3.5vw, 50px);
+    font-weight: 300;
+    line-height: 1.15;
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+    color: var(--white);
+  }
+  .story-quote em { font-style: italic; color: var(--gold-light); }
+
+  .story-body {
+    font-size: 13px;
+    line-height: 1.9;
+    color: var(--text-muted);
+    margin-bottom: 36px;
+    max-width: 420px;
+  }
+
+  .story-visual {
+    position: relative;
+    height: 460px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .story-frame {
+    position: absolute;
+    inset: 30px 0 0 30px;
+    border: 1px solid rgba(183,28,28,0.25);
+  }
+
+  .story-shoe-container {
+    position: relative;
+    z-index: 2;
+    width: 75%;
+    filter: drop-shadow(0 30px 50px rgba(183,28,28,0.2));
+  }
+
+  .story-tag {
+    position: absolute;
+    bottom: 60px; left: 0;
+    background: var(--gold);
+    color: var(--black);
+    padding: 16px 28px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    z-index: 3;
+  }
+  .story-tag strong { display: block; font-size: 22px; letter-spacing: 0; font-family: 'Cormorant Garamond', serif; font-weight: 400; }
+
+  /* Reviews */
+  .reviews {
+    padding: 90px 5vw;
+    background: var(--black-soft);
+  }
+
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  .review-card {
+    background: var(--black-mid);
+    padding: 36px 32px;
+    border-left: 2px solid rgba(183,28,28,0.25);
+    transition: border-color 0.3s;
+  }
+  .review-card:hover { border-color: var(--gold); }
+
+  .stars {
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+
+  .review-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.5;
+    margin-bottom: 22px;
+    color: var(--white);
+  }
+
+  .reviewer {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .reviewer-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--black);
+    font-family: 'Montserrat', sans-serif;
+    flex-shrink: 0;
+  }
+
+  /* Instagram Section */
+  .instagram {
+    padding: 90px 5vw;
+    background: var(--black);
+  }
+
+  .insta-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+
+  .insta-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .insta-tile {
+    aspect-ratio: 1;
+    background: var(--black-mid);
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  .insta-pattern {
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+  }
+  .insta-tile:hover .insta-pattern { transform: scale(1.06); }
+
+  .insta-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .insta-tile:hover .insta-overlay { opacity: 1; }
+  .insta-icon { font-size: 22px; }
+
+  /* Footer */
+  footer {
+    background: var(--black-soft);
+    border-top: 1px solid rgba(183,28,28,0.1);
+    padding: 70px 5vw 30px;
+  }
+
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    margin-bottom: 52px;
+  }
+
+  .footer-brand .nav-logo {
+    display: inline-block;
+    margin-bottom: 18px;
+  }
+  .footer-brand .logo-img {
+    height: 32px;
+  }
+
+  .footer-tagline {
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text-muted);
+    max-width: 260px;
+    margin-bottom: 24px;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 14px;
+  }
+  .social-icon {
+    width: 34px; height: 34px;
+    border: 1px solid rgba(201,168,76,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: var(--gold);
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .social-icon:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
+
+  .footer-col-title {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 22px;
+    font-weight: 600;
+  }
+
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .footer-links a {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--gold-light); }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(183,28,28,0.06);
+    padding-top: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-copy {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .footer-bottom-links {
+    display: flex;
+    gap: 24px;
+  }
+  .footer-bottom-links a {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .footer-bottom-links a:hover { color: var(--gold); }
+
+  /* Gold divider */
+  .gold-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--gold);
+    margin: 0 auto 20px;
+  }
+
+  /* Scroll animation */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Mobile Menu Styles */
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 20px;
+    height: 14px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 101;
+    padding: 0;
+  }
+  .menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--white);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  .menu-toggle.active span:nth-child(1) {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+  .menu-toggle.active span:nth-child(3) {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* Responsive Media Queries */
+  @media (max-width: 1024px) {
+    /* Hide custom cursor on tablets and mobile devices */
+    .cursor, .cursor-ring {
+      display: none !important;
+    }
+    body {
+      cursor: auto !important;
+    }
+    a, button, .product-card, .cat-card, .occasion-card, .insta-tile {
+      cursor: pointer !important;
+    }
+    
+    .products-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    
+    .insta-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 992px) {
+    .menu-toggle {
+      display: flex;
+    }
+    
+    .nav-links {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 70%;
+      max-width: 320px;
+      height: 100vh;
+      background: var(--black-soft);
+      box-shadow: -10px 0 30px rgba(0, 0, 0, 0.05);
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+      transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 100;
+      padding: 40px;
+      border-left: 1px solid rgba(183, 28, 28, 0.1);
+    }
+    
+    .nav-links.active {
+      right: 0;
+    }
+    
+    .nav-links a {
+      font-size: 14px;
+      letter-spacing: 3px;
+    }
+    
+    .nav-actions a:not(.cart-btn) {
+      display: none;
+    }
+    
+    /* Hero section vertical stack */
+    .hero {
+      height: auto;
+      min-height: unset;
+      flex-direction: column-reverse;
+      padding-top: 20px;
+      align-items: center;
+    }
+    
+    .hero-shoe-area {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin-top: 40px;
+    }
+    
+    .hero-content {
+      width: 100%;
+      max-width: 100%;
+      padding: 40px 5vw 0;
+      text-align: center;
+      margin: 0 auto;
+    }
+    
+    .hero-eyebrow {
+      justify-content: center;
+    }
+    
+    .hero-ctas {
+      justify-content: center;
+    }
+    
+    .hero-stats {
+      position: relative;
+      bottom: unset;
+      right: unset;
+      justify-content: center;
+      margin-top: 30px;
+      padding-bottom: 40px;
+    }
+    
+    .brand-story {
+      grid-template-columns: 1fr;
+      gap: 48px;
+      padding: 60px 5vw;
+      text-align: center;
+    }
+    
+    .story-body {
+      margin: 0 auto 36px;
+    }
+    
+    .story-visual {
+      height: 380px;
+    }
+    
+    .reviews-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .cat-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      gap: 16px;
+    }
+    
+    .cat-card:first-child {
+      grid-row: auto;
+      height: 300px;
+    }
+    
+    .cat-card {
+      height: 220px;
+    }
+    
+    .occasion-strip {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    
+    .occasion-card {
+      height: 280px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .hero-headline {
+      font-size: 42px;
+    }
+    
+    .products-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .insta-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .footer-top {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    
+    .footer-social {
+      justify-content: center;
+    }
+    
+    .footer-bottom {
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+    
+    .footer-bottom-links {
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .announcement {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      padding: 6px 10px;
+    }
+  }
+  
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Announcement Bar -->
+<div class="announcement">✦ Complimentary Shipping on All Orders &nbsp;|&nbsp; Chat on WhatsApp to Order ✦</div>
+
+<!-- Navigation -->
+<nav>
+  <a href="#" class="nav-logo"><img src="sartin logo_page-0001-Photoroom.png" alt="Sartin Logo" class="logo-img"></a>
+  <ul class="nav-links">
+    <li><a href="#">New Arrivals</a></li>
+    <li><a href="#">Collections</a></li>
+    <li><a href="#">Occasions</a></li>
+    <li><a href="#">Sale</a></li>
+    <li><a href="#">Our Story</a></li>
+  </ul>
+  <div class="nav-actions">
+    <a href="#">Search</a>
+    <a href="#">Account</a>
+    <a href="#" class="cart-btn">Cart (0)</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-line"></div>
+
+  <div class="hero-shoe-area">
+    <!-- Premium heel shoe SVG illustration -->
+    <svg class="shoe-visual" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="shoeGold" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#E8C97A"/>
+          <stop offset="50%" style="stop-color:#C9A84C"/>
+          <stop offset="100%" style="stop-color:#A07830"/>
+        </linearGradient>
+        <linearGradient id="shoeDark" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#2a2a2a"/>
+          <stop offset="100%" style="stop-color:#111"/>
+        </linearGradient>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- Shadow -->
+      <ellipse cx="240" cy="385" rx="130" ry="12" fill="rgba(0,0,0,0.4)"/>
+      <!-- Heel -->
+      <rect x="310" y="290" width="22" height="90" rx="3" fill="url(#shoeGold)" filter="url(#glow)"/>
+      <rect x="308" y="374" width="28" height="10" rx="2" fill="#C9A84C"/>
+      <!-- Sole -->
+      <path d="M100 310 Q120 320 200 320 Q280 322 330 310 L332 298 Q280 308 200 308 Q120 308 100 298 Z" fill="url(#shoeGold)"/>
+      <!-- Upper body -->
+      <path d="M100 300 Q80 240 100 180 Q130 120 200 100 Q260 85 300 110 Q340 135 332 200 Q326 250 310 296 Q270 310 200 312 Q140 312 100 300 Z" fill="url(#shoeDark)"/>
+      <!-- Gold toe cap -->
+      <path d="M100 300 Q80 240 100 180 Q120 150 150 135 Q130 180 130 240 Q128 278 130 298 Q115 302 100 300 Z" fill="rgba(201,168,76,0.18)"/>
+      <!-- Ankle strap -->
+      <path d="M170 108 Q200 98 230 102 L228 122 Q200 118 172 128 Z" fill="url(#shoeGold)" opacity="0.9"/>
+      <!-- Strap detail -->
+      <path d="M200 98 L202 82" stroke="#C9A84C" stroke-width="14" stroke-linecap="round" opacity="0.8"/>
+      <circle cx="202" cy="78" r="6" fill="#C9A84C" filter="url(#glow)"/>
+      <!-- Decorative lines on upper -->
+      <path d="M145 200 Q180 188 220 192" stroke="rgba(201,168,76,0.25)" stroke-width="1.5" fill="none"/>
+      <path d="M140 230 Q180 218 225 222" stroke="rgba(201,168,76,0.2)" stroke-width="1.5" fill="none"/>
+      <path d="M142 260 Q178 248 224 252" stroke="rgba(201,168,76,0.15)" stroke-width="1.5" fill="none"/>
+      <!-- Toe highlight -->
+      <path d="M108 270 Q100 250 104 225" stroke="rgba(255,255,255,0.06)" stroke-width="8" fill="none" stroke-linecap="round"/>
+      <!-- Gold accent line on sole edge -->
+      <path d="M102 302 Q200 318 330 302" stroke="#C9A84C" stroke-width="1.5" fill="none" opacity="0.6"/>
+    </svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">New Collection 2026</div>
+    <h1 class="hero-headline">
+      Step Into<br>Your <em>Stride</em>
+    </h1>
+    <p class="hero-sub">Crafted for the woman who moves with intention. Where luxury meets every step.</p>
+    <div class="hero-ctas">
+      <a href="#" class="btn-primary">Shop the Collection</a>
+      <a href="#" class="btn-ghost">Explore Looks</a>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">200+</span>
+      <span class="stat-label">Styles</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">4.9★</span>
+      <span class="stat-label">Rated</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">50K+</span>
+      <span class="stat-label">Happy Feet</span>
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="categories fade-in">
+  <div class="section-header">
+    <div class="section-eyebrow">Curated For You</div>
+    <h2 class="section-title">Bridal <em>Collection</em></h2>
+  </div>
+  <div class="cat-grid">
+
+    <!-- Bridal Card 1 - Featured -->
+    <div class="cat-card">
+      <img src="Bride collection 1.jpg" alt="Signature Bridal" class="cat-bg-img">
+      <div class="cat-overlay"></div>
+      <div class="cat-tag">Featured</div>
+      <div class="cat-info">
+        <span class="cat-name">Signature Bridal</span>
+        <span class="cat-count">Chat to Order</span>
+      </div>
+      <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20Bridal%20Collection%20Style%201" target="_blank" class="cat-link"></a>
+    </div>
+
+    <!-- Bridal Card 2 -->
+    <div class="cat-card">
+      <img src="Bride collection 2.jpg" alt="Bridal Sandals" class="cat-bg-img">
+      <div class="cat-overlay"></div>
+      <div class="cat-info">
+        <span class="cat-name">Bridal Sandals</span>
+        <span class="cat-count">Chat to Order</span>
+      </div>
+      <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20Bridal%20Collection%20Style%202" target="_blank" class="cat-link"></a>
+    </div>
+
+    <!-- Bridal Card 3 -->
+    <div class="cat-card">
+      <img src="Bride collection 3.jpg" alt="Bridal Flats" class="cat-bg-img">
+      <div class="cat-overlay"></div>
+      <div class="cat-info">
+        <span class="cat-name">Bridal Flats</span>
+        <span class="cat-count">Chat to Order</span>
+      </div>
+      <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20Bridal%20Collection%20Style%203" target="_blank" class="cat-link"></a>
+    </div>
+
+    <!-- Bridal Card 4 -->
+    <div class="cat-card">
+      <img src="Bride collection 4.jpg" alt="Bridal Boots" class="cat-bg-img">
+      <div class="cat-overlay"></div>
+      <div class="cat-tag">New</div>
+      <div class="cat-info">
+        <span class="cat-name">Bridal Boots</span>
+        <span class="cat-count">Chat to Order</span>
+      </div>
+      <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20Bridal%20Collection%20Style%204" target="_blank" class="cat-link"></a>
+    </div>
+
+  </div>
+</section>
+
+<!-- Featured Products -->
+<section class="products fade-in">
+  <div class="section-header">
+    <div class="section-eyebrow">Best Sellers</div>
+    <h2 class="section-title"><em>Coveted</em> This Season</h2>
+  </div>
+  <div class="products-grid">
+
+    <!-- Product 1 -->
+    <div class="product-card">
+      <div class="product-img">
+        <img src="bestselling 1.jpg" alt="Lumière Pump">
+        <span class="product-badge">Best Seller</span>
+        <button class="quick-view">Quick View</button>
+      </div>
+      <div class="product-info">
+        <div class="product-type">Block Heel</div>
+        <div class="product-name">Lumière Pump</div>
+        <div class="product-price-row">
+          <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20the%20Lumi%C3%A8re%20Pump" target="_blank" class="wa-chat-link">Chat on WhatsApp</a>
+          <div class="color-dots">
+            <div class="dot" style="background:#1a1a1a;"></div>
+            <div class="dot" style="background:#C9A84C;"></div>
+            <div class="dot" style="background:#8B4513;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 2 -->
+    <div class="product-card">
+      <div class="product-img">
+        <img src="bestselling 2.jpg" alt="Élégance Ballet">
+        <span class="product-badge new">New</span>
+        <button class="quick-view">Quick View</button>
+      </div>
+      <div class="product-info">
+        <div class="product-type">Ballet Flat</div>
+        <div class="product-name">Élégance Ballet</div>
+        <div class="product-price-row">
+          <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20the%20%C3%89l%C3%A9gance%20Ballet" target="_blank" class="wa-chat-link">Chat on WhatsApp</a>
+          <div class="color-dots">
+            <div class="dot" style="background:#C9A84C;"></div>
+            <div class="dot" style="background:#f5f0e8;"></div>
+            <div class="dot" style="background:#c0392b;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 3 -->
+    <div class="product-card">
+      <div class="product-img">
+        <div class="product-shoe-wrap">
+          <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="pg3" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#E8C97A"/>
+                <stop offset="100%" style="stop-color:#A07830"/>
+              </linearGradient>
+            </defs>
+            <ellipse cx="140" cy="268" rx="80" ry="8" fill="rgba(0,0,0,0.35)"/>
+            <path d="M52 212 Q52 226 140 230 Q228 226 228 212 Q228 200 140 198 Q52 200 52 212Z" fill="url(#pg3)"/>
+            <path d="M60 200 L68 90 Q70 72 90 64 L110 64 Q128 64 134 80 Q136 96 136 200Z" fill="#1e1e1e"/>
+            <path d="M60 200 L68 90 Q70 72 90 64 Q88 82 86 110 Q84 148 84 200Z" fill="rgba(201,168,76,0.09)"/>
+            <path d="M64 120 Q98 112 134 118" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.3"/>
+            <path d="M62 148 Q98 140 136 146" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.25"/>
+            <path d="M62 175 Q98 168 136 174" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.2"/>
+            <path d="M52 214 Q140 226 228 214" stroke="#C9A84C" stroke-width="1" fill="none" opacity="0.4"/>
+          </svg>
+        </div>
+        <span class="product-badge" style="background:#FFEBEE;color:#B71C1C;border:1px solid #B71C1C;">20% Off</span>
+        <button class="quick-view">Quick View</button>
+      </div>
+      <div class="product-info">
+        <div class="product-type">Ankle Boot</div>
+        <div class="product-name">Nuit Chelsea</div>
+        <div class="product-price-row">
+          <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20the%20Nuit%20Chelsea" target="_blank" class="wa-chat-link">Chat on WhatsApp</a>
+          <div class="color-dots">
+            <div class="dot" style="background:#1a1a1a;"></div>
+            <div class="dot" style="background:#5a3a1a;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product 4 -->
+    <div class="product-card">
+      <div class="product-img">
+        <div class="product-shoe-wrap">
+          <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="140" cy="268" rx="82" ry="8" fill="rgba(0,0,0,0.35)"/>
+            <rect x="192" y="190" width="13" height="72" rx="2" fill="#C9A84C" opacity="0.9"/>
+            <rect x="190" y="256" width="17" height="10" rx="2" fill="#C9A84C"/>
+            <path d="M54 202 Q52 162 64 122 Q80 80 128 66 Q164 56 194 74 Q214 88 208 144 Q202 172 194 200 Q158 212 118 213 Q82 212 54 202Z" fill="#111"/>
+            <!-- Strap across -->
+            <path d="M70 165 Q110 158 190 166" stroke="#C9A84C" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.8"/>
+            <path d="M78 145 Q110 138 185 146" stroke="#C9A84C" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.5"/>
+            <path d="M54 202 Q136 216 196 202" stroke="#C9A84C" stroke-width="1" fill="none" opacity="0.4"/>
+            <circle cx="70" cy="165" r="4" fill="#C9A84C"/>
+          </svg>
+        </div>
+        <span class="product-badge">New</span>
+        <button class="quick-view">Quick View</button>
+      </div>
+      <div class="product-info">
+        <div class="product-type">Kitten Heel</div>
+        <div class="product-name">Velour Sling</div>
+        <div class="product-price-row">
+          <a href="https://wa.me/919876543210?text=Hi,%20I'm%20interested%20in%20the%20Velour%20Sling" target="_blank" class="wa-chat-link">Chat on WhatsApp</a>
+          <div class="color-dots">
+            <div class="dot" style="background:#800020;"></div>
+            <div class="dot" style="background:#C9A84C;"></div>
+            <div class="dot" style="background:#1a1a1a;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="view-all-wrap">
+    <a href="#" class="btn-primary">View All 200+ Styles</a>
+  </div>
+</section>
+
+<!-- Occasions -->
+<section class="occasions fade-in">
+  <div class="section-header">
+    <div class="section-eyebrow">Shop The Mood</div>
+    <h2 class="section-title">Dressed for Every <em>Occasion</em></h2>
+  </div>
+  <div class="occasion-strip">
+
+    <div class="occasion-card">
+      <div class="occ-bg occ-bg-1"></div>
+      <svg class="occ-shoe" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="150" cy="214" rx="88" ry="7" fill="rgba(0,0,0,0.3)"/>
+        <rect x="198" y="160" width="13" height="52" rx="2" fill="#C9A84C" opacity="0.8"/>
+        <rect x="196" y="207" width="17" height="8" rx="2" fill="#C9A84C"/>
+        <path d="M54 168 Q52 136 62 106 Q76 72 118 60 Q150 52 178 68 Q198 80 192 124 Q188 148 182 168 Q148 178 112 178 Q76 178 54 168Z" fill="#1a1a1a"/>
+        <path d="M120 62 Q148 56 172 60 L170 72 Q148 68 121 74Z" fill="#C9A84C" opacity="0.8"/>
+        <path d="M148 56 L150 46" stroke="#C9A84C" stroke-width="9" stroke-linecap="round"/>
+        <circle cx="150" cy="42" r="4" fill="#C9A84C"/>
+        <path d="M54 170 Q118 182 184 170" stroke="#C9A84C" stroke-width="1" fill="none" opacity="0.4"/>
+      </svg>
+      <div class="occ-overlay"></div>
+      <div class="occ-info">
+        <span class="occ-label">Occasion</span>
+        <div class="occ-title">Party & Evening</div>
+        <a href="#" class="occ-link">Shop Now</a>
+      </div>
+    </div>
+
+    <div class="occasion-card">
+      <div class="occ-bg occ-bg-2"></div>
+      <svg class="occ-shoe" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="150" cy="214" rx="85" ry="7" fill="rgba(0,0,0,0.3)"/>
+        <path d="M50 188 Q50 202 150 208 Q250 202 250 188 Q248 176 150 174 Q52 176 50 188Z" fill="#C9A84C" opacity="0.8"/>
+        <path d="M60 174 Q62 138 80 112 Q100 88 150 84 Q196 88 218 112 Q234 136 232 174Z" fill="#111"/>
+        <path d="M110 86 Q150 80 188 84 L186 96 Q150 92 111 98Z" fill="#C9A84C" opacity="0.6"/>
+        <path d="M76 130 Q118 122 222 130" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.25"/>
+        <path d="M74 150 Q116 144 224 150" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.2"/>
+        <path d="M50 190 Q150 202 250 190" stroke="#C9A84C" stroke-width="1" fill="none" opacity="0.35"/>
+      </svg>
+      <div class="occ-overlay"></div>
+      <div class="occ-info">
+        <span class="occ-label">Occasion</span>
+        <div class="occ-title">Office & Workwear</div>
+        <a href="#" class="occ-link">Shop Now</a>
+      </div>
+    </div>
+
+    <div class="occasion-card">
+      <div class="occ-bg occ-bg-3"></div>
+      <svg class="occ-shoe" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="150" cy="214" rx="88" ry="7" fill="rgba(0,0,0,0.3)"/>
+        <path d="M46 192 Q46 208 150 212 Q254 208 254 192 Q252 180 150 178 Q48 180 46 192Z" fill="#C9A84C" opacity="0.85"/>
+        <path d="M56 180 Q58 140 76 114 Q98 88 150 84 Q200 88 220 114 Q236 138 234 180Z" fill="#1a1a1a"/>
+        <path d="M56 180 Q58 140 76 114 Q84 100 96 94 Q92 118 90 148 Q89 164 88 180Z" fill="rgba(201,168,76,0.09)"/>
+        <path d="M76 140 Q120 130 228 140" stroke="#C9A84C" stroke-width="3" fill="none" opacity="0.3" stroke-linecap="round"/>
+        <path d="M74 162 Q120 154 230 162" stroke="#C9A84C" stroke-width="2" fill="none" opacity="0.2" stroke-linecap="round"/>
+        <path d="M116 86 Q150 80 182 84 L180 96 Q150 92 118 98Z" fill="#C9A84C" opacity="0.6"/>
+        <path d="M46 193 Q150 205 254 193" stroke="#C9A84C" stroke-width="1" fill="none" opacity="0.4"/>
+      </svg>
+      <div class="occ-overlay"></div>
+      <div class="occ-info">
+        <span class="occ-label">Occasion</span>
+        <div class="occ-title">Casual Everyday</div>
+        <a href="#" class="occ-link">Shop Now</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Brand Story -->
+<section class="brand-story fade-in">
+  <div class="story-content">
+    <div class="section-eyebrow" style="justify-content:flex-start;">
+      <span style="width:40px;height:1px;background:rgba(201,168,76,0.4);display:block;"></span>
+      Our Story
+    </div>
+    <h2 class="story-quote">
+      About Sartin <em>Footwear</em>
+    </h2>
+    <p class="story-body" style="margin-bottom: 16px;">
+      Founded in 2009, Sartin Footwear was established with a simple vision: to create stylish, comfortable, and high-quality footwear exclusively for women.
+    </p>
+    <p class="story-body" style="margin-bottom: 16px;">
+      For over a decade, we have been dedicated to understanding the evolving needs of women across every generation. Our collections are thoughtfully designed to combine fashion, comfort, and durability, ensuring every pair supports women through every step of their journey.
+    </p>
+    <p class="story-body" style="margin-bottom: 16px;">
+      From everyday essentials to elegant occasion wear, each pair of Sartin footwear is crafted with meticulous attention to detail, premium materials, and an uncompromising commitment to quality. We believe that the right footwear does more than complete an outfit—it inspires confidence, enhances comfort, and empowers women to move through life with ease.
+    </p>
+    <p class="story-body" style="margin-bottom: 24px;">
+      Today, Sartin Footwear proudly serves women of all ages with designs that celebrate individuality, timeless style, and lasting comfort. What began as a passion in 2009 has grown into a trusted brand committed to helping women look and feel their best every day.
+    </p>
+    <p class="story-body" style="font-weight: 600; color: var(--white); margin-bottom: 36px;">
+      Sartin Footwear – Crafted for Women. Designed for Every Generation.
+    </p>
+    <a href="#" class="btn-primary">Discover Our Story</a>
+  </div>
+
+  <div class="story-visual">
+    <div class="story-frame"></div>
+    <div class="story-shoe-container">
+      <svg viewBox="0 0 400 360" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="sg1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#E8C97A"/>
+            <stop offset="60%" style="stop-color:#C9A84C"/>
+            <stop offset="100%" style="stop-color:#8a6020"/>
+          </linearGradient>
+          <filter id="sglow">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <radialGradient id="bgGlow" cx="60%" cy="40%">
+            <stop offset="0%" style="stop-color:rgba(183,28,28,0.12)"/>
+            <stop offset="100%" style="stop-color:transparent"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="200" cy="200" rx="200" ry="200" fill="url(#bgGlow)"/>
+        <ellipse cx="200" cy="348" rx="130" ry="10" fill="rgba(0,0,0,0.4)"/>
+        <!-- Heel -->
+        <rect x="286" y="262" width="20" height="82" rx="3" fill="url(#sg1)" filter="url(#sglow)"/>
+        <rect x="283" y="336" width="26" height="12" rx="3" fill="#B8942A"/>
+        <!-- Sole -->
+        <path d="M80 278 Q100 292 180 295 Q256 296 304 278 L306 265 Q258 280 180 280 Q100 280 78 265 Z" fill="url(#sg1)"/>
+        <!-- Upper -->
+        <path d="M80 268 Q60 200 82 138 Q108 80 184 60 Q248 45 290 75 Q326 102 316 178 Q308 224 290 268 Q240 285 180 286 Q120 286 80 268 Z" fill="#111"/>
+        <!-- Sheen -->
+        <path d="M80 268 Q60 200 82 138 Q92 106 108 88 Q102 130 102 185 Q100 222 98 268 Q90 272 80 268 Z" fill="rgba(201,168,76,0.09)"/>
+        <!-- Toe highlight -->
+        <path d="M86 238 Q78 215 82 186" stroke="rgba(255,255,255,0.05)" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <!-- Strap -->
+        <path d="M150 64 Q186 52 220 58 L218 78 Q186 72 152 84 Z" fill="url(#sg1)"/>
+        <path d="M186 53 L188 36" stroke="#C9A84C" stroke-width="12" stroke-linecap="round"/>
+        <circle cx="188" cy="30" r="7" fill="#C9A84C" filter="url(#sglow)"/>
+        <!-- Details -->
+        <path d="M110 168 Q158 156 228 162" stroke="rgba(201,168,76,0.2)" stroke-width="1.5" fill="none"/>
+        <path d="M108 200 Q156 188 226 194" stroke="rgba(201,168,76,0.15)" stroke-width="1.5" fill="none"/>
+        <path d="M108 232 Q156 220 228 226" stroke="rgba(201,168,76,0.12)" stroke-width="1.5" fill="none"/>
+        <!-- Gold sole edge -->
+        <path d="M82 270 Q180 288 304 272" stroke="#C9A84C" stroke-width="1.5" fill="none" opacity="0.5"/>
+      </svg>
+    </div>
+    <div class="story-tag">
+      <strong>50,000+</strong>
+      Women Trust Sartin Worldwide
+    </div>
+  </div>
+</section>
+
+<!-- Reviews -->
+<section class="reviews fade-in">
+  <div class="section-header">
+    <div class="section-eyebrow">Testimonials</div>
+    <h2 class="section-title">What Our <em>Community</em> Says</h2>
+  </div>
+  <div class="reviews-grid">
+
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"Finally a heel I can actually wear all day. The Lumière Pump is everything — elegant and unbelievably comfortable."</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">P</div>
+        <div>
+          <div style="color:var(--white);margin-bottom:3px;">Priya M.</div>
+          <div>Mumbai · Verified Buyer</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"The packaging alone felt like a luxury experience. The boots are absolutely stunning and fit like they were made for me."</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">A</div>
+        <div>
+          <div style="color:var(--white);margin-bottom:3px;">Ananya S.</div>
+          <div>Bangalore · Verified Buyer</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="review-card">
+      <div class="stars">★★★★★</div>
+      <p class="review-text">"I've bought 4 pairs now and every single one has been flawless. Sartin understands what women actually want in footwear."</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar">R</div>
+        <div>
+          <div style="color:var(--white);margin-bottom:3px;">Riya K.</div>
+          <div>Delhi · Verified Buyer</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Instagram -->
+<section class="instagram fade-in">
+  <div class="insta-header">
+    <div>
+      <div class="section-eyebrow" style="justify-content:flex-start;">
+        <span style="width:40px;height:1px;background:rgba(201,168,76,0.4);display:block;"></span>
+        Community
+      </div>
+      <h2 class="section-title" style="font-size:clamp(28px,3vw,42px);">#StepWithSartin</h2>
+    </div>
+    <a href="#" class="btn-ghost" style="font-family:'Montserrat',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--white);text-decoration:none;display:flex;align-items:center;gap:10px;opacity:0.7;transition:all 0.2s;">Follow on Instagram</a>
+  </div>
+  <div class="insta-grid">
+    <!-- 5 tiles with different gradient patterns -->
+    <div class="insta-tile">
+      <svg class="insta-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="#fafafa"/>
+        <radialGradient id="ig1" cx="60%" cy="50%"><stop offset="0%" style="stop-color:rgba(183,28,28,0.2)"/><stop offset="100%" style="stop-color:transparent"/></radialGradient>
+        <rect width="200" height="200" fill="url(#ig1)"/>
+        <rect x="160" y="148" width="8" height="48" rx="1" fill="#B71C1C" opacity="0.7"/>
+        <path d="M30 162 Q50 170 80 168 Q120 166 160 162 L162 156 Q120 158 80 160 Q46 162 30 155Z" fill="#B71C1C" opacity="0.6"/>
+        <path d="M30 158 Q50 120 62 82 Q72 52 95 40 Q118 32 138 44 Q155 56 152 92 Q148 118 140 156Z" fill="#1a1a1a"/>
+        <path d="M94 42 Q108 36 122 40 L120 50 Q108 46 95 52Z" fill="#B71C1C" opacity="0.7"/>
+        <path d="M108 36 L110 28" stroke="#B71C1C" stroke-width="6" stroke-linecap="round"/>
+      </svg>
+      <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+    </div>
+    <div class="insta-tile">
+      <svg class="insta-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="#f5f5f5"/>
+        <radialGradient id="ig2" cx="40%" cy="60%"><stop offset="0%" style="stop-color:rgba(183,28,28,0.15)"/><stop offset="100%" style="stop-color:transparent"/></radialGradient>
+        <rect width="200" height="200" fill="url(#ig2)"/>
+        <path d="M30 172 Q30 182 100 185 Q170 182 170 172 Q170 164 100 162 Q30 164 30 172Z" fill="#B71C1C" opacity="0.75"/>
+        <path d="M38 162 Q40 118 56 94 Q72 72 100 68 Q128 72 144 94 Q158 116 156 162Z" fill="#1c1c1c"/>
+        <path d="M76 70 Q100 64 124 68 L122 78 Q100 74 78 80Z" fill="#B71C1C" opacity="0.65"/>
+        <path d="M38 164 Q100 176 162 164" stroke="#B71C1C" stroke-width="0.8" fill="none" opacity="0.4"/>
+      </svg>
+      <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+    </div>
+    <div class="insta-tile">
+      <svg class="insta-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="#fafafa"/>
+        <radialGradient id="ig3" cx="50%" cy="40%"><stop offset="0%" style="stop-color:rgba(183,28,28,0.18)"/><stop offset="100%" style="stop-color:transparent"/></radialGradient>
+        <rect width="200" height="200" fill="url(#ig3)"/>
+        <rect x="130" y="128" width="9" height="56" rx="1" fill="#B71C1C" opacity="0.8"/>
+        <rect x="128" y="178" width="13" height="8" rx="1" fill="#B71C1C"/>
+        <path d="M28 135 Q26 108 36 82 Q50 56 80 48 Q105 42 122 54 Q136 64 132 96 Q128 114 124 134 Q98 142 74 142 Q48 142 28 135Z" fill="#1a1a1a"/>
+        <path d="M79 50 Q96 45 112 48 L110 58 Q96 55 80 60Z" fill="#B71C1C" opacity="0.75"/>
+        <path d="M28 136 Q82 148 126 136" stroke="#B71C1C" stroke-width="0.8" fill="none" opacity="0.4"/>
+      </svg>
+      <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+    </div>
+    <div class="insta-tile">
+      <svg class="insta-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="#f0f0f0"/>
+        <radialGradient id="ig4" cx="50%" cy="70%"><stop offset="0%" style="stop-color:rgba(183,28,28,0.16)"/><stop offset="100%" style="stop-color:transparent"/></radialGradient>
+        <rect width="200" height="200" fill="url(#ig4)"/>
+        <path d="M25 168 Q25 178 100 182 Q175 178 175 168 Q173 158 100 156 Q27 158 25 168Z" fill="#B71C1C" opacity="0.7"/>
+        <path d="M34 156 L42 64 Q44 52 56 46 L66 46 Q78 46 82 58 Q84 68 84 156Z" fill="#1a1a1a"/>
+        <path d="M40 100 Q62 94 84 98" stroke="#B71C1C" stroke-width="1.5" fill="none" opacity="0.3"/>
+        <path d="M38 120 Q62 114 84 118" stroke="#B71C1C" stroke-width="1.5" fill="none" opacity="0.25"/>
+        <path d="M25 170 Q100 180 175 170" stroke="#B71C1C" stroke-width="0.8" fill="none" opacity="0.4"/>
+      </svg>
+      <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+    </div>
+    <div class="insta-tile">
+      <svg class="insta-pattern" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" fill="#fafafa"/>
+        <radialGradient id="ig5" cx="55%" cy="45%"><stop offset="0%" style="stop-color:rgba(183,28,28,0.2)"/><stop offset="100%" style="stop-color:transparent"/></radialGradient>
+        <rect width="200" height="200" fill="url(#ig5)"/>
+        <rect x="134" y="130" width="10" height="58" rx="1" fill="#B71C1C" opacity="0.8"/>
+        <rect x="132" y="182" width="14" height="8" rx="1" fill="#B71C1C"/>
+        <path d="M30 140 Q28 108 38 78 Q54 48 86 38 Q112 30 132 46 Q150 58 144 98 Q140 120 134 138 Q104 150 76 150 Q48 150 30 140Z" fill="#191919"/>
+        <path d="M86 40 Q108 34 128 38 L126 50 Q108 46 87 52Z" fill="#B71C1C" opacity="0.7"/>
+        <path d="M146 46 L148 36" stroke="#B71C1C" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="148" cy="32" r="4" fill="#B71C1C"/>
+        <path d="M30 142 Q86 154 136 140" stroke="#B71C1C" stroke-width="0.8" fill="none" opacity="0.4"/>
+      </svg>
+      <div class="insta-overlay"><span class="insta-icon">♡</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo"><img src="sartin logo_page-0001-Photoroom.png" alt="Sartin Logo" class="logo-img"></a>
+      <p class="footer-tagline">Crafted for the woman who moves with intention. Luxury footwear that steps with you.</p>
+      <div class="footer-social">
+        <a href="#" class="social-icon">in</a>
+        <a href="#" class="social-icon">ig</a>
+        <a href="#" class="social-icon">pi</a>
+        <a href="#" class="social-icon">wa</a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Collections</div>
+      <ul class="footer-links">
+        <li><a href="#">Heels & Pumps</a></li>
+        <li><a href="#">Ballerinas</a></li>
+        <li><a href="#">Sandals</a></li>
+        <li><a href="#">Boots</a></li>
+        <li><a href="#">Mules & Slides</a></li>
+        <li><a href="#">Loafers & Flats</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Quick Links</div>
+      <ul class="footer-links">
+        <li><a href="#">My Account</a></li>
+        <li><a href="#">Shipping & Returns</a></li>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">Product Care</a></li>
+        <li><a href="#">Store Locator</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Customer Care</div>
+      <ul class="footer-links">
+        <li><a href="#">+91 98765 43210</a></li>
+        <li><a href="#">hello@sartin.in</a></li>
+        <li><a href="#" style="color:#C9A84C;">Chat on WhatsApp</a></li>
+        <li style="color:#666;font-size:11px;margin-top:8px;">Mon–Sat, 10am–6pm IST</li>
+      </ul>
+      <div style="margin-top:28px;">
+        <div class="footer-col-title">Newsletter</div>
+        <div style="display:flex;gap:0;margin-top:12px;">
+          <input type="email" placeholder="Your email" style="background:#fff;border:1px solid rgba(183,28,28,0.2);border-right:none;color:var(--white);padding:11px 14px;font-size:11px;font-family:'Montserrat',sans-serif;outline:none;flex:1;letter-spacing:0.5px;"/>
+          <button style="background:var(--gold);border:none;color:#fff;padding:11px 16px;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Sartin. All Rights Reserved. Powered by Luxury.</div>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">Refund Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.transform = `translate(${e.clientX - 6}px, ${e.clientY - 6}px)`;
+    setTimeout(() => {
+      ring.style.transform = `translate(${e.clientX - 18}px, ${e.clientY - 18}px)`;
+    }, 80);
+  });
+  document.querySelectorAll('a, button, .product-card, .cat-card, .occasion-card, .insta-tile').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.transform += ' scale(1.8)';
+      cursor.style.background = '#EF5350';
+      ring.style.width = '50px';
+      ring.style.height = '50px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.background = '#B71C1C';
+      ring.style.width = '36px';
+      ring.style.height = '36px';
+    });
+  });
+
+  // Scroll fade-in
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  // Mobile menu toggle
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks = document.querySelector('.nav-links');
+  
+  menuToggle.addEventListener('click', () => {
+    menuToggle.classList.toggle('active');
+    navLinks.classList.toggle('active');
+  });
+
+  // Close menu when a link is clicked
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', () => {
+      menuToggle.classList.remove('active');
+      navLinks.classList.remove('active');
+    });
+  });
+</script>
+</body>
+</html>
